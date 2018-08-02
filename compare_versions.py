@@ -103,6 +103,17 @@ class TestRedisDictAPI(unittest.TestCase):
         diff = ddiff(output_d1, output_d2, view=diff_view)
         self.assertEqual(diff, {})
 
+    def test_set_and_get_key_integer(self):
+
+        def set_and_get_key_integer(rd):
+            rd['foo'] = 1234
+            return rd['foo']
+
+        output_d1 = self.run_closure(set_and_get_key_integer, self.d1)
+        output_d2 = self.run_closure(set_and_get_key_integer, self.d2)
+        diff = ddiff(output_d1, output_d2, view=diff_view)
+        self.assertEqual(diff, {})
+
     def test_get_keyerror(self):
 
         def get_keyerror(rd):
@@ -139,7 +150,7 @@ class TestRedisDictAPI(unittest.TestCase):
 
     @requireFunctions('chain_set')
     def test_chain_set(self):
-        
+
         def chain_set(rd):
             return rd.chain_set(['layer1', 'layer2'], 'melons')
 
@@ -150,14 +161,63 @@ class TestRedisDictAPI(unittest.TestCase):
 
     @requireFunctions('chain_set', 'chain_get')
     def test_chain_set_and_get(self):
-        
+
         def chain_set_and_get(rd):
             rd.chain_set(['layer1', 'layer2'], 'melons')
-            rd.chain_get(['layer1', 'layer2'])
+            return rd.chain_get(['layer1', 'layer2'])
 
         output_d1 = self.run_closure(chain_set_and_get, self.d1)
         #print 'test_chain_set_and_get output_d1', output_d1
         output_d2 = self.run_closure(chain_set_and_get, self.d2)
+        diff = ddiff(output_d1, output_d2, view=diff_view)
+        self.assertEqual(diff, {})
+
+    @requireFunctions('chain_del')
+    def test_chain_del(self):
+
+        def chain_del(rd):
+            return rd.chain_del(['layer1', 'layer2'])
+
+        output_d1 = self.run_closure(chain_del, self.d1)
+        output_d2 = self.run_closure(chain_del, self.d2)
+        diff = ddiff(output_d1, output_d2, view=diff_view)
+        self.assertEqual(diff, {})
+
+    @requireFunctions('chain_set', 'chain_del')
+    def test_chain_set_and_del(self):
+
+        def chain_del(rd):
+            rd.chain_set(['layer1', 'layer2'], 'melons')
+            return rd.chain_del(['layer1', 'layer2'])
+ 
+        output_d1 = self.run_closure(chain_del, self.d1)
+        output_d2 = self.run_closure(chain_del, self.d2)
+        diff = ddiff(output_d1, output_d2, view=diff_view)
+        self.assertEqual(diff, {})
+
+    @requireFunctions('keys')
+    def test_keys(self):
+
+        def keys(rd):
+            rd['foo'] = 'bar'
+            rd['john'] = 'doe'
+            return rd.keys()
+
+        output_d1 = self.run_closure(keys, self.d1)
+        output_d2 = self.run_closure(keys, self.d2)
+        diff = ddiff(output_d1, output_d2, view=diff_view)
+        self.assertEqual(diff, {})
+
+    @requireFunctions('keys')
+    def test_many_keys(self):
+
+        def many_keys(rd):
+            for i in range(100):
+                rd[str(i)] = i
+            return sorted(rd.keys())
+
+        output_d1 = self.run_closure(many_keys, self.d1)
+        output_d2 = self.run_closure(many_keys, self.d2)
         diff = ddiff(output_d1, output_d2, view=diff_view)
         self.assertEqual(diff, {})
 
