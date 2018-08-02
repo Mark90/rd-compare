@@ -113,7 +113,7 @@ class TestRedisDictAPI(unittest.TestCase):
         diff = ddiff(output_d1, output_d2, view=diff_view)
         self.assertEqual(diff, {})
 
-    def output_del_keyerror(self):
+    def test_del_keyerror(self):
 
         def del_keyerror(rd):
             del rd['foo']
